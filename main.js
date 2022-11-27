@@ -16,6 +16,9 @@ button.addClass('test-class');
 button.addStyle('color', 'red');
 button.addStyle('background-color', 'blue');
 
-console.log(button.getAttribute('class'));
-
-button.addAttribute('id', 'test');   
+button.addStyles([
+    {style: 'color', value: 'blue'},
+    {style: 'background-color', value: 'red'}
+]);
+ 
+console.log(button.getHtml());

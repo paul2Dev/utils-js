@@ -1,6 +1,10 @@
 export default class Element {
-    constructor(selector) {
-        this.element = document.querySelector(selector);
+    constructor(selector = null, newElement = false) {
+        if(newElement == true) {
+            this.element = document.createElement(selector);
+        } else {
+            this.element = document.querySelector(selector);
+        }
     }
 
     /*
@@ -89,6 +93,18 @@ export default class Element {
     }
 
     /*
+    * Add styles to the element
+    * @param {object} styles - The styles to add
+    * @return {void}
+    */ 
+
+    addStyles(styles) {
+        styles.forEach(style => {
+            this.addStyle(style.style, style.value);
+        });
+    }
+
+    /*
     * add attribute to the element
     * @param {string} attribute - The attribute to add
     * @param {string} value - The attribute value to add
@@ -117,5 +133,50 @@ export default class Element {
 
     getAttribute(attribute) {
         return this.element.getAttribute(attribute);
+    }
+
+    /*
+    * get height of the element
+    * @return {number} - The height of the element
+    */
+
+    getHeight() {
+        return this.element.offsetHeight;
+    }
+
+    /*
+    * get width of the element
+    * @return {number} - The width of the element
+    */  
+
+    getWidth() {
+        return this.element.offsetWidth;
+    }
+
+    /*
+    * get text of the element
+    * @return {string} - The text of the element
+    */
+
+    getText() {
+        return this.element.innerText;
+    }
+
+    /*
+    * get html of the element
+    * @return {string} - The html of the element
+    */
+
+    getHtml() {
+        return this.element.innerHTML;
+    }
+
+    /*
+    * remove the element
+    * @return {void}
+    */
+
+    remove() {
+        this.element.remove();
     }
 }
