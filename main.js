@@ -22,3 +22,20 @@ button.addStyles([
 ]);
  
 console.log(button.getHtml());
+
+//create list of elements with class 'tasks' and add them to the list
+let app = new Element('#app');
+
+let tasksList = new Element('ul', true);
+
+let tasks = [
+    new Element('li', true, 'task1'),
+    new Element('li', true, 'task2'),
+    new Element('li', true, 'task3'),
+]
+
+tasksList.addElements(tasks);
+
+app.addElement(tasksList);
+
+

@@ -1,7 +1,13 @@
 export default class Element {
-    constructor(selector = null, newElement = false) {
+
+    /*
+    * constructor
+    */
+    
+    constructor(selector = null, newElement = false, text = '') {
         if(newElement == true) {
             this.element = document.createElement(selector);
+            this.setText(text);
         } else {
             this.element = document.querySelector(selector);
         }
@@ -163,12 +169,32 @@ export default class Element {
     }
 
     /*
+    * set text of the element
+    * @param {string} text - The text to set
+    * @return {void}
+    */ 
+
+    setText(text) {
+        this.element.innerText = text;
+    }
+
+    /*
     * get html of the element
     * @return {string} - The html of the element
     */
 
     getHtml() {
         return this.element.innerHTML;
+    }
+
+    /*
+    * set html of the element
+    * @param {string} html - The html to set
+    * @return {void}
+    */ 
+    
+    setHtml(html) {
+        this.element.innerHTML = html;
     }
 
     /*
@@ -179,4 +205,28 @@ export default class Element {
     remove() {
         this.element.remove();
     }
+
+    /*
+    * append the elements to another element
+    * @param {object} element - The element to append to
+    * @return {void}
+    */
+   
+
+    addElements(elements) {
+        elements.forEach(element => {
+            this.element.appendChild(element.element);
+        });
+    }
+
+    /*
+    * append the element to another element
+    * @param {object} element - The element to append to
+    * @return {void}
+    */ 
+
+    addElement(element) {
+        this.element.appendChild(element.element);
+    }
+
 }
