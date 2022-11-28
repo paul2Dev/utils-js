@@ -169,6 +169,16 @@ export default class Element {
     }
 
     /*
+    * get value of the element
+    * @return {string} - The value of the element
+    * @return {array} - The values of the element
+    */
+
+    getValue() {
+        return this.element.value;
+    }
+
+    /*
     * set text of the element
     * @param {string} text - The text to set
     * @return {void}
@@ -176,6 +186,16 @@ export default class Element {
 
     setText(text) {
         this.element.innerText = text;
+    }
+
+    /*
+    * set value of the element
+    * @param {string} value - The value to set
+    * @return {void}
+    */
+
+    setValue(value) {
+        this.element.value = value;
     }
 
     /*
