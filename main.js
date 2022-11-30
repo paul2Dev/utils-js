@@ -23,7 +23,3 @@ newTask.registerEvent('keyup', (e) => {
 });
 
 app.addElement(tasksList);
-
-Utils.addClass(app.element, 'app');
-
-console.log(Utils.addDaysToDate('2022-11-29', 3));
