@@ -266,8 +266,212 @@ export default class Utils {
   static commonKeys = (obj1, obj2) =>
     Object.keys(obj1).filter(key => obj2.hasOwnProperty(key));
 
+  /*
+  Checks if the given string contains any whitespace characters.
+    Use RegExp.prototype.test() with an appropriate regular expression to check if the given string contains any whitespace characters.
+  */
 
-  
+  static containsWhitespace = str => /\s/.test(str);
+
+  /*
+  Copies a string to the clipboard. Only works as a result of user action (i.e. inside a click event listener).
+    Create a new <textarea> element, fill it with the supplied data and add it to the HTML document.
+    Use Selection.getRangeAt()to store the selected range (if any).
+    Use Document.execCommand() to copy to the clipboard.
+    Remove the <textarea> element from the HTML document.
+    Finally, use Selection.addRange() to recover the original selected range (if any).
+    Note: You can use the asynchronous Clipboard API in most current browsers. You can find out more about it in the copyToClipboardAsync snippet.
+  */
+
+  static copyToClipboard = str => {
+    const el = document.createElement('textarea');
+    el.value = str;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    const selected =
+      document.getSelection().rangeCount > 0
+        ? document.getSelection().getRangeAt(0)
+        : false;
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    if (selected) {
+      document.getSelection().removeAllRanges();
+      document.getSelection().addRange(selected);
+    }
+  };  
+
+
+  /*
+  Copies a string to the clipboard, returning a promise that resolves when the clipboard's contents have been updated.
+    Check if the Clipboard API is available. Use an if statement to ensure Navigator, Navigator.clipboard and Navigator.clipboard.writeText are truthy.
+    Use Clipboard.writeText() to write the given value, str, to the clipboard.
+    Return the result of Clipboard.writeText(), which is a promise that resolves when the clipboard's contents have been updated.
+    In case that the Clipboard API is not available, use Promise.reject() to reject with an appropriate message.
+    Note: If you need to support older browsers, you might want to use Document.execCommand() instead. You can find out more about it in the copyToClipboard snippet.
+  */
+
+  static copyToClipboardAsync = str => {
+    if (navigator && navigator.clipboard && navigator.clipboard.writeText)
+      return navigator.clipboard.writeText(str);
+    return Promise.reject('The Clipboard API is not available.');
+  };
+
+  /*
+  Counts the weekdays between two dates.
+    Use Array.from() to construct an array with length equal to the number of days between startDate and endDate.
+    Use Array.prototype.reduce() to iterate over the array, checking if each date is a weekday and incrementing count.
+    Update startDate with the next day each loop using Date.prototype.getDate() and Date.prototype.setDate() to advance it by one day.
+    NOTE: Does not take official holidays into account.
+  */
+
+  static countWeekDaysBetween = (startDate, endDate) =>
+  Array
+    .from({ length: (endDate - startDate) / (1000 * 3600 * 24) })
+    .reduce(count => {
+      if (startDate.getDay() % 6 !== 0) count++;
+      startDate = new Date(startDate.setDate(startDate.getDate() + 1));
+      return count;
+    }, 0);
+
+
+  /*
+  Creates an element from a string (without appending it to the document). If the given string contains multiple elements, only the first one will be returned.
+    Use Document.createElement() to create a new element.
+    Use Element.innerHTML to set its inner HTML to the string supplied as the argument.
+    Use Element.firstElementChild to return the element version of the string.
+  */
+
+  static createElement = str => {
+    const el = document.createElement('div');
+    el.innerHTML = str;
+    return el.firstElementChild;
+  };
+
+  /*
+  const el = createElement(
+    `<div class="container">
+      <p>Hello!</p>
+    </div>`
+  );
+  console.log(el.className); // 'container'
+  */
+
+  /*
+  Returns the current URL.
+    Use Window.location.href to get the current URL.
+  */
+
+  static currentURL = () => window.location.href;
+
+  /*
+  Creates a generator, that generates all dates in the given range using the given step.
+    Use a while loop to iterate from start to end, using yield to return each date in the range, using the Date constructor.
+    Use Date.prototype.getDate() and Date.prototype.setDate() to increment by step days after returning each subsequent value.
+    Omit the third argument, step, to use a default value of 1.
+  */
+
+  static dateRangeGenerator = function* (start, end, step = 1) {
+    let d = start;
+    while (d < end) {
+      yield new Date(d);
+      d.setDate(d.getDate() + step);
+    }
+  };  
+
+  /*
+  [...dateRangeGenerator(new Date('2021-06-01'), new Date('2021-06-04'))];
+  // [ 2021-06-01, 2021-06-02, 2021-06-03 ]
+  */
+
+  /*
+  Gets the name of the weekday from a Date object.
+    Use Date.prototype.toLocaleDateString() with the { weekday: 'long' } option to retrieve the weekday.
+    Use the optional second argument to get a language-specific name or omit it to use the default locale.\
+  */
+
+  static dayName = (date, locale) =>
+    date.toLocaleDateString(locale, { weekday: 'long' });
+
+  /*
+  dayName(new Date()); // 'Saturday'
+  dayName(new Date('09/23/2020'), 'de-DE'); // 'Samstag'  
+  */
+
+
+  /*
+  Gets the day of the year (number in the range 1-366) from a Date object.
+    Use the Date constructor and Date.prototype.getFullYear() to get the first day of the year as a Date object.
+    Subtract the first day of the year from date and divide with the milliseconds in each day to get the result.
+    Use Math.floor() to appropriately round the resulting day count to an integer.
+  */
+
+  static dayOfYear = date =>
+    Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+
+  /* dayOfYear(new Date()); // 272 */
+
+  /*
+  Calculates the date of n days ago from today as a string representation.
+    Use the Date constructor to get the current date.
+    Use Math.abs() and Date.prototype.getDate() to update the date accordingly and set to the result using Date.prototype.setDate().
+    Use Date.prototype.toISOString() to return a string in yyyy-mm-dd format.
+  */
+
+  static daysAgo = n => {
+    let d = new Date();
+    d.setDate(d.getDate() - Math.abs(n));
+    return d.toISOString().split('T')[0];
+  };
+
+  /* daysAgo(20); // 2020-09-16 (if current date is 2020-10-06) */
+
+  /*
+  Calculates the date of n days from today as a string representation.
+    Use the Date constructor to get the current date.
+    Use Math.abs() and Date.prototype.getDate() to update the date accordingly and set to the result using Date.prototype.setDate().
+    Use Date.prototype.toISOString() to return a string in yyyy-mm-dd format.
+  */
+
+  static daysFromNow = n => {
+    let d = new Date();
+    d.setDate(d.getDate() + Math.abs(n));
+    return d.toISOString().split('T')[0];
+  };
+
+  /* daysFromNow(5); // 2020-10-13 (if current date is 2020-10-08) */
+
+  /*
+  Gets the number of days in the given month of the specified year.
+    Use the Date constructor to create a date from the given year and month.
+    Set the days parameter to 0 to get the last day of the previous month, as months are zero-indexed.
+    Use Date.prototype.getDate() to return the number of days in the given month.
+  */
+
+  static daysInMonth = (year, month) => new Date(year, month, 0).getDate();
+
+  /*
+  daysInMonth(2020, 12)); // 31
+  daysInMonth(2024, 2)); // 29
+  */
+
+  /*
+  Decapitalizes the first letter of a string.
+    Use array destructuring and String.prototype.toLowerCase() to decapitalize first letter, ...rest to get array of characters after first letter and then Array.prototype.join() to make it a string again.
+    Omit the upperRest argument to keep the rest of the string intact, or set it to true to convert to uppercase.
+  */
+
+  static decapitalize = ([first, ...rest], upperRest = false) =>
+    first.toLowerCase() +
+    (upperRest ? rest.join('').toUpperCase() : rest.join(''));
+
+  /* 
+  decapitalize('FooBar'); // 'fooBar'
+  decapitalize('FooBar', true); // 'fOOBAR'
+  */
+
 
 
 
