@@ -472,6 +472,238 @@ export default class Utils {
   decapitalize('FooBar', true); // 'fOOBAR'
   */
 
+  /*
+  Detects whether the page is being viewed on a mobile device or a desktop.
+    Use a regular expression to test the Navigator.userAgent property to figure out if the device is a mobile device or a desktop.
+  */
+
+  static detectDeviceType = () =>
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+      ? 'Mobile'
+      : 'Desktop';
+
+  /*
+  Detects the preferred language of the current user.
+    Use Navigator.language or the first value of Navigator.languages if available, otherwise return defaultLang.
+    Omit the second argument, defaultLang, to use 'en-US' as the default language code.
+  */
+
+  static detectLanguage = (defaultLang = 'en-US') =>
+    navigator.language ||
+    (Array.isArray(navigator.languages) && navigator.languages[0]) ||
+    defaultLang;  
+
+  /*
+  Calculates the difference between two arrays, without filtering duplicate values.
+    Create a Set from b to get the unique values in b.
+    Use Array.prototype.filter() on a to only keep values not contained in b, using Set.prototype.has().
+  */
+
+  static difference = (a, b) => {
+    const s = new Set(b);
+    return a.filter(x => !s.has(x));
+  };
+
+  /*
+  Gets the target value in a nested JSON object, based on the given key.
+    Use the in operator to check if target exists in obj.
+    If found, return the value of obj[target].
+    Otherwise use Object.values() and Array.prototype.reduce() to recursively call dig on each nested object until the first matching key/value pair is found.
+  */
+
+  static dig = (obj, target) =>
+    target in obj
+      ? obj[target]
+      : Object.values(obj).reduce((acc, val) => {
+          if (acc !== undefined) return acc;
+          if (typeof val === 'object') return dig(val, target);
+        }, undefined);
+
+  /*
+  Converts a number to an array of digits, removing its sign if necessary.
+    Use Math.abs() to strip the number's sign.
+    Convert the number to a string, using the spread operator (...) to build an array.
+    Use Array.prototype.map() and parseInt() to transform each value to an integer.
+  */
+
+  static digitize = n => [...`${Math.abs(n)}`].map(i => parseInt(i));
+
+  /*
+  Creates a new array with n elements removed from the left.
+    Use Array.prototype.slice() to remove the specified number of elements from the left.
+    Omit the last argument, n, to use a default value of 1.
+  */
+
+  static drop = (arr, n = 1) => arr.slice(n);
+
+  /*
+  Creates a new array with n elements removed from the right.
+    Use Array.prototype.slice() to remove the specified number of elements from the right.
+    Omit the last argument, n, to use a default value of 1.
+  */
+
+  static dropRight = (arr, n = 1) => arr.slice(0, -n);
+
+  /*
+  Removes elements from the end of an array until the passed function returns true. Returns the remaining elements in the array.
+    Loop through the array, using Array.prototype.slice() to drop the last element of the array until the value returned from func is true.
+    Return the remaining elements.
+  */
+
+  static dropRightWhile = (arr, func) => {
+    let rightIndex = arr.length;
+    while (rightIndex-- && !func(arr[rightIndex]));
+    return arr.slice(0, rightIndex + 1);
+  };
+
+  /*
+  Removes elements in an array until the passed function returns true. Returns the remaining elements in the array.
+    Loop through the array, using Array.prototype.slice() to drop the first element of the array until the value returned from func is true.
+    Return the remaining elements.
+  */
+
+  static dropWhile = (arr, func) => {
+    while (arr.length > 0 && !func(arr[0])) arr = arr.slice(1);
+    return arr;
+  };
+
+  /*
+  Checks if the given element is focused.
+    Use Document.activeElement to determine if the given element is focused.
+  */
+
+  static elementIsFocused = el => (el === document.activeElement);  
+
+  /*
+  Checks if the element specified is visible in the viewport.
+    Use Element.getBoundingClientRect(), Window.innerWidth and Window.innerHeight to determine if a given element is visible in the viewport.
+    Omit the second argument to determine if the element is entirely visible, or specify true to determine if it is partially visible.
+  */
+
+  static elementIsVisibleInViewport = (el, partiallyVisible = false) => {
+    const { top, left, bottom, right } = el.getBoundingClientRect();
+    const { innerHeight, innerWidth } = window;
+    return partiallyVisible
+      ? ((top > 0 && top < innerHeight) ||
+          (bottom > 0 && bottom < innerHeight)) &&
+          ((left > 0 && left < innerWidth) || (right > 0 && right < innerWidth))
+      : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
+  };  
+
+  /*
+  Checks if a given string ends with a substring of another string.
+    Use a for...in loop and String.prototype.slice() to get each substring of the given word, starting at the end.
+    Use String.prototype.endsWith() to check the current substring against the text.
+    Return the matching substring, if found. Otherwise, return undefined.
+  */
+
+  static endsWithSubstring = (text, word) => {
+    for (let i in word) {
+      const substr = word.slice(0, i + 1);
+      if (text.endsWith(substr)) return substr;
+    }
+    return undefined;
+  };
+
+  /*
+  Performs a deep comparison between two values to determine if they are equivalent.
+    Check if the two values are identical.
+    Check if both values are Date objects with the same time, using Date.prototype.getTime().
+    Check if both values are non-object values with an equivalent value (strict comparison).
+    Check if only one value is null or undefined or if their prototypes differ.
+    If none of the above conditions are met, use Object.keys() to check if both values have the same number of keys.
+    Use Array.prototype.every() to check if every key in a exists in b and if they are equivalent by calling equals() recursively.
+  */
+
+  static equals = (a, b) => {
+    if (a === b) return true;
+  
+    if (a instanceof Date && b instanceof Date)
+      return a.getTime() === b.getTime();
+  
+    if (!a || !b || (typeof a !== 'object' && typeof b !== 'object'))
+      return a === b;
+  
+    if (a.prototype !== b.prototype) return false;
+  
+    const keys = Object.keys(a);
+    if (keys.length !== Object.keys(b).length) return false;
+  
+    return keys.every(k => equals(a[k], b[k]));
+  };
+
+  /*
+  Escapes a string for use in HTML.
+    Use String.prototype.replace() with a regexp that matches the characters that need to be escaped.
+    Use the callback function to replace each character instance with its associated escaped character using a dictionary object.
+  */
+
+  static escapeHTML = str =>
+    str.replace(
+      /[&<>'"]/g,
+      tag =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+    );
+
+  /*
+  Escapes a string to use in a regular expression.
+    Use String.prototype.replace() to escape special characters.
+  */
+
+  static escapeRegExp = str => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  /*
+  Converts Fahrenheit to Celsius.
+    Follow the conversion formula C = (F - 32) * 5 / 9.
+  */
+
+  static fahrenheitToCelsius = degrees => (degrees - 32) * 5 / 9;
+
+  /*
+  Creates an array with the non-unique values filtered out.
+    Use the Set constructor and the spread operator (...) to create an array of the unique values in arr.
+    Use Array.prototype.filter() to create an array containing only the unique values.
+  */
+
+  static filterNonUnique = arr =>
+    [...new Set(arr)].filter(i => arr.indexOf(i) === arr.lastIndexOf(i));
+
+  /*
+  Creates an array with the unique values filtered out.
+    Use the Set constructor and the spread operator (...) to create an array of the unique values in arr.
+    Use Array.prototype.filter() to create an array containing only the non-unique values.
+  */
+
+  static filterUnique = arr =>
+    [...new Set(arr)].filter(i => arr.indexOf(i) !== arr.lastIndexOf(i));
+
+  /*
+  Finds the anchor node closest to the given node, if any.
+    Use a for loop and Node.parentNode to traverse the node tree upwards from the given node.
+    Use Node.nodeName and String.prototype.toLowerCase() to check if any given node is an anchor ('a').
+    If no matching node is found, return null.
+  */
+
+  static findClosestAnchor = node => {
+    for (let n = node; n.parentNode; n = n.parentNode)
+      if (n.nodeName.toLowerCase() === 'a') return n;
+    return null;
+  };
+
+
+ 
+
+
+
+
 
 
 
