@@ -698,6 +698,227 @@ export default class Utils {
     return null;
   };
 
+  /*
+  Finds the closest matching node starting at the given node.
+    Use a for loop and Node.parentNode to traverse the node tree upwards from the given node.
+    Use Element.matches() to check if any given element node matches the provided selector.
+    If no matching node is found, return null.
+  */
+
+  static findClosestMatchingNode = (node, selector) => {
+    for (let n = node; n.parentNode; n = n.parentNode)
+      if (n.matches && n.matches(selector)) return n;
+    return null;
+  };
+
+  /*
+  Executes a provided function once for each array element, starting from the array's last element.
+    Use Array.prototype.slice() to clone the given array and Array.prototype.reverse() to reverse it.
+    Use Array.prototype.forEach() to iterate over the reversed array.
+  */
+
+  static forEachRight = (arr, callback) =>
+    arr
+      .slice()
+      .reverse()
+      .forEach(callback);
+
+  /*
+  Encodes a set of form elements as an object.
+    Use the FormData constructor to convert the HTML form to FormData and Array.from() to convert to an array.
+    Collect the object from the array using Array.prototype.reduce().
+  */
+
+  static formToObject = form =>
+    Array.from(new FormData(form)).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key]: value
+      }),
+      {}
+    );
+
+  /*
+  Returns the human-readable format of the given number of milliseconds.
+    Divide ms with the appropriate values to obtain the appropriate values for day, hour, minute, second and millisecond.
+    Use Object.entries() with Array.prototype.filter() to keep only non-zero values.
+    Use Array.prototype.map() to create the string for each value, pluralizing appropriately.
+    Use Array.prototype.join() to combine the values into a string.
+  */
+
+  static formatDuration = ms => {
+    if (ms < 0) ms = -ms;
+    const time = {
+      day: Math.floor(ms / 86400000),
+      hour: Math.floor(ms / 3600000) % 24,
+      minute: Math.floor(ms / 60000) % 60,
+      second: Math.floor(ms / 1000) % 60,
+      millisecond: Math.floor(ms) % 1000
+    };
+    return Object.entries(time)
+      .filter(val => val[1] !== 0)
+      .map(([key, val]) => `${val} ${key}${val !== 1 ? 's' : ''}`)
+      .join(', ');
+  };
+
+  /*
+  Formats a number using the local number format order.
+    Use Number.prototype.toLocaleString() to convert a number to using the local number format separators.
+  */  
+
+  static formatNumber = num => num.toLocaleString();
+
+  /*  
+  Returns the ISO format of the given number of seconds.
+    Divide s with the appropriate values to obtain the appropriate values for hour, minute and second.
+    Store the sign in a variable to prepend it to the result.
+    Use Array.prototype.map() in combination with Math.floor() and String.prototype.padStart() to stringify and format each segment.
+    Use Array.prototype.join() to combine the values into a string.
+  */
+ 
+  static formatSeconds = s => {
+    const [hour, minute, second, sign] =
+      s > 0
+        ? [s / 3600, (s / 60) % 60, s % 60, '']
+        : [-s / 3600, (-s / 60) % 60, -s % 60, '-'];
+  
+    return (
+      sign +
+      [hour, minute, second]
+        .map(v => `${Math.floor(v)}`.padStart(2, '0'))
+        .join(':')
+    );
+  };
+
+  /*
+  Converts a string from camelcase.
+    Use String.prototype.replace() to break the string into words and add a separator between them.
+    Omit the second argument to use a default separator of _.
+  */
+
+  static fromCamelCase = (str, separator = '_') =>
+    str
+      .replace(/([a-z\d])([A-Z])/g, '$1' + separator + '$2')
+      .replace(/([A-Z]+)([A-Z][a-z\d]+)/g, '$1' + separator + '$2')
+      .toLowerCase();
+
+  /*
+  fromCamelCase('someLabelThatNeedsToBeDecamelized', '-'); //'some-label-that-needs-to-be-decamelized'
+  */
+
+  /*
+  Creates a Date object from a Unix timestamp.
+    Convert the timestamp to milliseconds by multiplying with 1000.
+    Use the Date constructor to create a new Date object.
+  */
+
+  static fromTimestamp = timestamp => new Date(timestamp * 1000);
+
+  /*  
+  Generates an array with the given amount of items, using the given function.
+    Use Array.from() to create an empty array of the specific length, calling fn with the index of each newly created element.
+    The callback takes one argument - the index of each element.
+  */
+  
+  static generateItems = (n, fn) => Array.from({ length: n }, (_, i) => fn(i));
+
+  /*
+  Gets the current URL without any parameters or fragment identifiers.
+    Use String.prototype.replace() with an appropriate regular expression to remove everything after either '?' or '#', if found.
+  */
+
+  static getBaseURL = url => url.replace(/[?#].*$/, '');
+
+  /*
+  Gets the command-line arguments passed to a Node.js script.
+    Use process.argv to get an array of all command-line arguments.
+    Use Array.prototype.slice() to remove the first two elements (path of the Node.js executable and the file being executed).
+  */
+
+  static getCmdArgs = () => process.argv.slice(2);
+
+  /*
+  // node my-script.js --name=John --age=30
+  getCmdArgs(); // ['--name=John', '--age=30']
+  */
+
+  /*
+  Returns a string of the form HH:MM:SS from a Date object.
+    Use Date.prototype.toTimeString() and String.prototype.slice() to get the HH:MM:SS part of a given Date object.
+  */
+
+  static getColonTimeFromDate = date => date.toTimeString().slice(0, 8);
+
+  //getColonTimeFromDate(new Date()); // '08:38:00'
+
+  /*
+  Calculates the difference (in days) between two dates.
+    Subtract the two Date objects and divide by the number of milliseconds in a day to get the difference (in days) between them.
+  */
+
+  static getDaysDiffBetweenDates = (dateInitial, dateFinal) =>
+    (dateFinal - dateInitial) / (1000 * 3600 * 24);
+
+  //getDaysDiffBetweenDates(new Date('2017-12-13'), new Date('2017-12-22')); // 9
+
+  /*
+  Returns an array of HTML elements whose width is larger than that of the viewport's.
+    Use HTMLElement.offsetWidth to get the width of the Document.
+    Use Array.prototype.filter() on the result of Document.querySelectorAll() to check the width of all elements in the document.
+  */
+
+  static getElementsBiggerThanViewport = () => {
+    const docWidth = document.documentElement.offsetWidth;
+    return [...document.querySelectorAll('*')].filter(
+      el => el.offsetWidth > docWidth
+    );
+  };
+
+  //getElementsBiggerThanViewport(); // <div id="ultra-wide-item" />
+
+  /*
+  Calculates the difference (in hours) between two dates.
+    Subtract the two Date objects and divide by the number of milliseconds in an hour to get the difference (in hours) between them.
+  */
+
+  static getHoursDiffBetweenDates = (dateInitial, dateFinal) =>
+    (dateFinal - dateInitial) / (1000 * 3600);
+
+  /*
+  getHoursDiffBetweenDates(
+    new Date('2021-04-24 10:25:00'),
+    new Date('2021-04-25 10:25:00')
+  ); // 24
+  */
+
+  /* 
+  Fetches all images from within an element and puts them into an array.
+
+    Use Element.getElementsByTagName() to get all <img> elements inside the provided element.
+    Use Array.prototype.map() to map every src attribute of each <img> element.
+    If includeDuplicates is false, create a new Set to eliminate duplicates and return it after spreading into an array.
+    Omit the second argument, includeDuplicates, to discard duplicates by default.
+  */
+
+  static getImages = (el, includeDuplicates = false) => {
+    const images = [...el.getElementsByTagName('img')].map(img =>
+      img.getAttribute('src')
+    );
+    return includeDuplicates ? images : [...new Set(images)];
+  };
+
+  /*
+  getImages(document, true); // ['image1.jpg', 'image2.png', 'image1.png', '...']
+  getImages(document, false); // ['image1.jpg', 'image2.png', '...']
+  */
+
+
+
+
+
+
+
+
 
  
 
