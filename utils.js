@@ -22,14 +22,14 @@ export default class Utils {
   */ 
 
   static urlJoin = (...args) =>
-                  args
-                    .join('/')
-                    .replace(/[\/]+/g, '/')
-                    .replace(/^(.+):\//, '$1://')
-                    .replace(/^file:/, 'file:/')
-                    .replace(/\/(\?|&|#[^!])/g, '$1')
-                    .replace(/\?/g, '&')
-                    .replace('&', '?');
+    args
+      .join('/')
+      .replace(/[\/]+/g, '/')
+      .replace(/^(.+):\//, '$1://')
+      .replace(/^file:/, 'file:/')
+      .replace(/\/(\?|&|#[^!])/g, '$1')
+      .replace(/\?/g, '&')
+      .replace('&', '?');
 
   /*
   Creates an array of partial sums.
@@ -912,16 +912,319 @@ export default class Utils {
   getImages(document, false); // ['image1.jpg', 'image2.png', '...']
   */
 
+  /*
+  Calculates the difference (in minutes) between two dates.
+    Subtract the two Date objects and divide by the number of milliseconds in a minute to get the difference (in minutes) between them.
+  */
 
+  static getMinutesDiffBetweenDates = (dateInitial, dateFinal) =>
+    (dateFinal - dateInitial) / (1000 * 60);
 
+  /*
+    getMinutesDiffBetweenDates(
+    new Date('2021-04-24 01:00:15'),
+    new Date('2021-04-24 02:00:15')
+  ); // 60
+  */
 
-
-
-
-
-
+  /*
+  Calculates the difference (in months) between two dates.
+    Use Date.prototype.getFullYear() and Date.prototype.getMonth() to calculate the difference (in months) between two Date objects.
+  */
  
+  static getMonthsDiffBetweenDates = (dateInitial, dateFinal) =>
+    Math.max(
+      (dateFinal.getFullYear() - dateInitial.getFullYear()) * 12 +
+        dateFinal.getMonth() -
+        dateInitial.getMonth(),
+      0
+    );
 
+  /*
+  getMonthsDiffBetweenDates(new Date('2017-12-13'), new Date('2018-04-29')); // 4
+  */
+
+  /*
+  Calculates the difference (in seconds) between two dates.
+    Subtract the two Date objects and divide by the number of milliseconds in a second to get the difference (in seconds) between them.
+  */
+
+  static getSecondsDiffBetweenDates = (dateInitial, dateFinal) =>
+    (dateFinal - dateInitial) / 1000;
+
+  /*
+    getSecondsDiffBetweenDates(
+    new Date('2020-12-24 00:00:15'),
+    new Date('2020-12-24 00:00:17')
+  ); // 2
+  */
+
+  /*
+  Returns the scroll position of the current page.
+    Use Window.pageXOffset and Window.pageYOffset if they are defined, otherwise Element.scrollLeft and Element.scrollTop.
+    Omit the single argument, el, to use the global Window object.
+  */
+
+  static getScrollPosition = (el = window) => ({
+    x: el.pageXOffset !== undefined ? el.pageXOffset : el.scrollLeft,
+    y: el.pageYOffset !== undefined ? el.pageYOffset : el.scrollTop
+  });
+
+  /*
+  getScrollPosition(); // {x: 0, y: 200}
+  */
+
+  /*
+  Calculates the width of the window's vertical scrollbar.
+    Use Window.innerWidth to get the interior width of the window.
+    Use Element.clientWidth to get the inner width of the Document element.
+    Subtract the two values to get the width of the vertical scrollbar.
+  */
+
+  static getScrollbarWidth = () =>
+    window.innerWidth - document.documentElement.clientWidth;
+
+  /*
+  getScrollbarWidth(); // 15
+  */
+
+  /*
+  Gets the currently selected text.
+    Use Window.getSelection() and Selection.toString() to get the currently selected text.
+  */
+
+  static getSelectedText = () => window.getSelection().toString();
+
+  /*
+  getSelectedText(); // 'Lorem ipsum'
+  */
+
+  /*
+  Retrieves the value of a CSS rule for the specified element.
+    Use Window.getComputedStyle() to get the value of the CSS rule for the specified element.
+  */
+
+  static getStyle = (el, ruleName) => getComputedStyle(el)[ruleName];
+
+  /*
+  getStyle(document.querySelector('p'), 'font-size'); // '16px'
+  */
+
+  /*
+  Gets the Unix timestamp from a Date object.
+    Use Date.prototype.getTime() to get the timestamp in milliseconds and divide by 1000 to get the timestamp in seconds.
+    Use Math.floor() to appropriately round the resulting timestamp to an integer.
+    Omit the argument, date, to use the current date.
+  */
+
+  static getTimestamp = (date = new Date()) => Math.floor(date.getTime() / 1000);
+
+  /*
+  getTimestamp(); // 1602162242
+  */
+
+  /*
+  Returns the native type of a value.
+    Return 'undefined' or 'null' if the value is undefined or null.
+    Otherwise, use Object.prototype.constructor and Function.prototype.name to get the name of the constructor.
+  */
+
+  static getType = v =>
+    (v === undefined ? 'undefined' : v === null ? 'null' : v.constructor.name);
+
+  /*
+  getType(new Set([1, 2, 3])); // 'Set'
+  */
+
+  /*
+  Creates an object containing the parameters of the current URL.
+    Use String.prototype.match() with an appropriate regular expression to get all key-value pairs.
+    Use Array.prototype.reduce() to map and combine them into a single object.
+    Pass location.search as the argument to apply to the current url.
+  */
+
+  static getURLParameters = url =>
+    (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(
+      (a, v) => (
+        (a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1)), a
+      ),
+      {}
+    );
+
+  /*  
+  getURLParameters('google.com'); // {}
+  getURLParameters('http://url.com/page?name=Adam&surname=Smith');
+  // {name: 'Adam', surname: 'Smith'}
+  */
+
+  /*
+  Finds the distance from a given element to the top of the document.
+    Use a while loop and HTMLElement.offsetParent to move up the offset parents of the given element.
+    Add HTMLElement.offsetTop for each element and return the result.
+  */
+
+  static getVerticalOffset = el => {
+    let offset = el.offsetTop,
+      _el = el;
+    while (_el.offsetParent) {
+      _el = _el.offsetParent;
+      offset += _el.offsetTop;
+    }
+    return offset;
+  };
+
+  /*
+  getVerticalOffset('.my-element'); // 120
+  */
+
+  /*
+  Checks if the given element has the specified class.
+    Use Element.classList and DOMTokenList.contains() to check if the element has the specified class.
+  */
+
+  static hasClass = (el, className) => el.classList.contains(className);
+
+  /*
+  hasClass(document.querySelector('p.special'), 'special'); // true
+  */
+
+  /*
+  Checks if a number has any decimals digits
+    Use the modulo (%) operator to check if the number is divisible by 1 and return the result.
+  */
+
+  static hasDecimals = num => num % 1 !== 0;
+
+  /*    
+  hasDecimals(1); // false
+  hasDecimals(1.001); // true
+  */
+
+  /*
+  Checks if there are duplicate values in a flat array.
+    Use Set to get the unique values in the array.
+    Use Set.prototype.size and Array.prototype.length to check if the count of the unique values is the same as elements in the original array.
+  */
+
+  static hasDuplicates = arr => new Set(arr).size !== arr.length;
+
+  /*
+  hasDuplicates([0, 1, 1, 2]); // true
+  hasDuplicates([0, 1, 2, 3]); // false
+  */
+
+  /*
+  Hides all the elements specified.
+    Use the spread operator (...) and Array.prototype.forEach() to apply display: none to each element specified.
+  */
+
+  static hide = (...el) => [...el].forEach(e => (e.style.display = 'none'));
+
+  /*
+  hide(...document.querySelectorAll('img')); // Hides all <img> elements on the page
+  */
+
+  /*
+  Redirects the page to HTTPS if it's currently in HTTP.
+    Use location.protocol to get the protocol currently being used.
+    If it's not HTTPS, use location.replace() to replace the existing page with the HTTPS version of the page.
+    Use location.href to get the full address, split it with String.prototype.split() and remove the protocol part of the URL.
+    Note that pressing the back button doesn't take it back to the HTTP page as its replaced in the history.
+  */
+
+  static httpsRedirect = () => {
+    if (location.protocol !== 'https:')
+      location.replace('https://' + location.href.split('//')[1]);
+  };
+
+  /*  
+  httpsRedirect();
+  // If you are on http://mydomain.com, you are redirected to https://mydomain.com
+  */
+
+  /*
+  Checks if all the elements in values are included in arr.
+    Use Array.prototype.every() and Array.prototype.includes() to check if all elements of values are included in arr.
+  */
+
+  static includesAll = (arr, values) => values.every(v => arr.includes(v));
+
+  /*
+  includesAll([1, 2, 3, 4], [1, 4]); // true
+  includesAll([1, 2, 3, 4], [1, 5]); // false
+  */
+
+  /*
+  Checks if at least one element of values is included in arr.
+    Use Array.prototype.some() and Array.prototype.includes() to check if at least one element of values is included in arr.
+  */  
+
+  static includesAny = (arr, values) => values.some(v => arr.includes(v));
+
+  /*
+  includesAny([1, 2, 3, 4], [2, 9]); // true
+  includesAny([1, 2, 3, 4], [8, 9]); // false
+  */
+
+  /*
+  Checks if a string contains a substring, case-insensitive.
+    Use the RegExp constructor with the 'i' flag to create a regular expression, that matches the given searchString, ignoring the case.
+    Use RegExp.prototype.test() to check if the string contains the substring.
+  */
+
+  static includesCaseInsensitive = (str, searchString) =>
+    new RegExp(searchString, 'i').test(str);
+
+  /*
+  includesCaseInsensitive('Blue Whale', 'blue'); // true
+  */
+
+  /*
+  Injects the given CSS code into the current document
+    Use Document.createElement() to create a new style element and set its type to text/css.
+    Use Element.innerText to set the value to the given CSS string.
+    Use Document.head and Element.appendChild() to append the new element to the document head.
+    Return the newly created style element.
+  */
+
+  static injectCSS = css => {
+    let el = document.createElement('style');
+    el.type = 'text/css';
+    el.innerText = css;
+    document.head.appendChild(el);
+    return el;
+  };
+
+  /*
+  injectCSS('body { background-color: #000 }');
+  // '<style type="text/css">body { background-color: #000 }</style>'
+  */
+
+  /*
+  Inserts an HTML string after the end of the specified element.
+    Use Element.insertAdjacentHTML() with a position of 'afterend' to parse htmlString and insert it after the end of el.
+  */
+
+  static insertAfter = (el, htmlString) =>
+    el.insertAdjacentHTML('afterend', htmlString);
+
+  /*
+  insertAfter(document.getElementById('myId'), '<p>after</p>');
+  // <div id="myId">...</div> <p>after</p>
+  */
+
+  /*
+  Inserts an HTML string before the start of the specified element.
+    Use Element.insertAdjacentHTML() with a position of 'beforebegin' to parse htmlString and insert it before the start of el.
+  */
+
+  static insertBefore = (el, htmlString) =>
+    el.insertAdjacentHTML('beforebegin', htmlString);
+
+  /*
+  insertBefore(document.getElementById('myId'), '<p>before</p>');
+  // <p>before</p> <div id="myId">...</div>
+  */
 
 
 
