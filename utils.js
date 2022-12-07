@@ -1226,10 +1226,260 @@ export default class Utils {
   // <p>before</p> <div id="myId">...</div>
   */
 
+  /*
+  Checks if a date is after another date.
+    Use the greater than operator (>) to check if the first date comes after the second one.
+  */
+
+  static isAfterDate = (dateA, dateB) => dateA > dateB;
+
+  //isAfterDate(new Date(2010, 10, 21), new Date(2010, 10, 20)); // true
 
 
+  /*
+  Checks if the given string is an absolute URL.
+      Use RegExp.prototype.test() to test if the string is an absolute URL.
+  */
 
+  static isAbsoluteURL = str => /^[a-z][a-z0-9+.-]*:/.test(str);
 
+  /*
+  isAbsoluteURL('https://google.com'); // true
+  isAbsoluteURL('ftp://www.myserver.net'); // true
+  isAbsoluteURL('/foo/bar'); // false
+  */
+
+  /*
+  Checks if a string contains only alpha characters.
+    Use RegExp.prototype.test() to check if the given string matches against the alphabetic regexp pattern.
+  */
+
+  static isAlpha = str => /^[a-zA-Z]*$/.test(str);
+
+  /*
+  isAlpha('sampleInput'); // true
+  isAlpha('this Will fail'); // false
+  isAlpha('123'); // false
+  */
+
+  /*
+  Checks if a string contains only alphanumeric characters.
+    Use RegExp.prototype.test() to check if the input string matches against the alphanumeric regexp pattern.
+  */
+
+  static isAlphaNumeric = str => /^[a-z0-9]+$/gi.test(str);
+
+  /*
+  isAlphaNumeric('hello123'); // true
+  isAlphaNumeric('123'); // true
+  isAlphaNumeric('hello 123'); // false (space character is not alphanumeric)
+  isAlphaNumeric('#$hello'); // false
+  */
+
+  /*
+  Checks if a string is an anagram of another string (case-insensitive, ignores spaces, punctuation and special characters).
+    Use String.prototype.toLowerCase() and String.prototype.replace() with an appropriate regular expression to remove unnecessary characters.
+    Use String.prototype.split(), Array.prototype.sort() and Array.prototype.join() on both strings to normalize them, then check if their normalized forms are equal.
+  */
+
+  static isAnagram = (str1, str2) => {
+    const normalize = str =>
+      str
+        .toLowerCase()
+        .replace(/[^a-z0-9]/gi, '')
+        .split('')
+        .sort()
+        .join('');
+    return normalize(str1) === normalize(str2);
+  };
+
+  //isAnagram('iceman', 'cinema'); // true
+
+  /*
+  Checks if the given argument is an async function.
+    Use Object.prototype.toString() and Function.prototype.call() and check if the result is '[object AsyncFunction]'.
+  */
+
+  static isAsyncFunction = val =>
+    Object.prototype.toString.call(val) === '[object AsyncFunction]';
+
+  /*
+  isAsyncFunction(function() {}); // false
+  isAsyncFunction(async function() {}); // true
+  */
+
+  /*
+  Checks if a date is before another date.
+    Use the less than operator (<) to check if the first date comes before the second one.
+  */  
+
+  static isBeforeDate = (dateA, dateB) => dateA < dateB;
+
+  //isBeforeDate(new Date(2010, 10, 20), new Date(2010, 10, 21)); // true
+
+  /*
+  Checks if a date is between two other dates.
+    Use the greater than (>) and less than (<) operators to check if date is between dateStart and dateEnd.
+  */
+
+  static isBetweenDates = (dateStart, dateEnd, date) =>
+    date > dateStart && date < dateEnd;
+
+  /*
+  isBetweenDates(
+    new Date(2010, 11, 20),
+    new Date(2010, 11, 30),
+    new Date(2010, 11, 19)
+  ); // false
+  isBetweenDates(
+    new Date(2010, 11, 20),
+    new Date(2010, 11, 30),
+    new Date(2010, 11, 25)
+  ); // true
+  */
+
+  /*
+  Checks if the browser tab of the page is focused.
+    Use the Document.hidden property, introduced by the Page Visibility API to check if the browser tab of the page is visible or hidden.
+  */
+
+  static isBrowserTabFocused = () => !document.hidden;
+
+  //isBrowserTabFocused(); // true
+
+  /*
+  Checks if a valid date object can be created from the given values.
+    Use the spread operator (...) to pass the array of arguments to the Date constructor.
+    Use Date.prototype.valueOf() and Number.isNaN() to check if a valid Date object can be created from the given values.
+  */
+
+  static isDateValid = (...val) => !Number.isNaN(new Date(...val).valueOf());
+
+  /*
+  isDateValid('December 17, 1995 03:24:00'); // true
+  isDateValid('1995-12-17T03:24:00'); // true
+  isDateValid('1995-12-17 T03:24:00'); // false
+  isDateValid('Duck'); // false
+  isDateValid(1995, 11, 17); // true
+  isDateValid(1995, 11, 17, 'Duck'); // false
+  isDateValid({}); // false
+  */
+
+  /*
+  Checks if the given string is valid in the simplified extended ISO format (ISO 8601).
+    Use the Date constructor to create a Date object from the given string.
+    Use Date.prototype.valueOf() and Number.isNaN() to check if the produced date object is valid.
+    Use Date.prototype.toISOString() to compare the ISO formatted string representation of the date with the original string.
+  */
+
+  static isISOString = val => {
+    const d = new Date(val);
+    return !Number.isNaN(d.valueOf()) && d.toISOString() === val;
+  };
+
+  /*
+  isISOString('2020-10-12T10:10:10.000Z'); // true
+  isISOString('2020-10-12'); // false
+  */
+
+  /*
+  Checks if the given year is a leap year.
+    Use the Date constructor, setting the date to February 29th of the given year.
+    Use Date.prototype.getMonth() to check if the month is equal to 1.
+    */
+
+  static isLeapYear = year => new Date(year, 1, 29).getMonth() === 1;
+
+  /*
+  isLeapYear(2019); // false
+  isLeapYear(2020); // true
+  */
+
+  /*
+  Checks if localStorage is enabled.
+    Use a try...catch block to return true if all operations complete successfully, false otherwise.
+    Use Storage.setItem() and Storage.removeItem() to test storing and deleting a value in Window.localStorage.
+  */
+
+  static isLocalStorageEnabled = () => {
+    try {
+      const key = `__storage__test`;
+      window.localStorage.setItem(key, null);
+      window.localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  //isLocalStorageEnabled(); // true, if localStorage is accessible
+
+  /*
+  Checks if a string is lower case.
+    Convert the given string to lower case, using String.prototype.toLowerCase() and compare it to the original.
+  */
+
+  static isLowerCase = str => str === str.toLowerCase();
+
+  /*
+  isLowerCase('abc'); // true
+  isLowerCase('a3@$'); // true
+  isLowerCase('Ab4'); // false
+  */
+
+  /*
+  Checks if the specified value is null or undefined.
+    Use the strict equality operator to check if the value of val is equal to null or undefined.
+  */
+
+  static isNil = val => val === undefined || val === null;
+
+  /*
+  isNil(null); // true
+  isNil(undefined); // true
+  isNil(''); // false
+  */
+
+  /*
+  Checks if the specified value is null.
+    Use the strict equality operator to check if the value of val is equal to null.
+  */
+
+  static isNull = val => val === null;
+
+  //isNull(null); // true
+
+  /*
+  Checks if the given argument is a number.
+    Use typeof to check if a value is classified as a number primitive.
+    To safeguard against NaN, check if val === val (as NaN has a typeof equal to number and is the only value not equal to itself).
+  */
+
+  static isNumber = val => typeof val === 'number' && val === val;
+
+  /*
+  isNumber(1); // true
+  isNumber('1'); // false
+  isNumber(NaN); // false
+  */
+
+  /*
+  Checks if the passed value is an object or not.
+    Uses the Object constructor to create an object wrapper for the given value.
+    If the value is null or undefined, create and return an empty object.
+    Otherwise, return an object of a type that corresponds to the given value.
+  */
+
+  static isObject = obj => obj === Object(obj);
+
+  /*
+  isObject([1, 2, 3, 4]); // true
+  isObject([]); // true
+  isObject(['Hello!']); // true
+  isObject({ a: 1 }); // true
+  isObject({}); // true
+  isObject(true); // false
+  */
 
 
 
